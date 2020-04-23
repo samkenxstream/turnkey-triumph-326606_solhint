@@ -24,6 +24,7 @@ function init() {
     .option('-q, --quiet', 'report errors only - default: false')
     .option('--ignore-path [file_name]', 'file to use as your .solhintignore')
     .option('--fix', 'automatically fix problems')
+    .option('--plugin-search-dir [plugins_dir]', 'directory to require plugins from')
     .description('Linter for Solidity programming language')
     .action(execMainAction)
 
@@ -162,11 +163,11 @@ const readConfig = _.memoize(() => {
 })
 
 function processStr(input) {
-  return linter.processStr(input, readConfig())
+  return linter.processStr(input, readConfig(), { pluginSearchDir: program.pluginSearchDir })
 }
 
 function processPath(path) {
-  return linter.processPath(path, readConfig())
+  return linter.processPath(path, readConfig(), { pluginSearchDir: program.pluginSearchDir })
 }
 
 function printReports(reports, formatter) {
