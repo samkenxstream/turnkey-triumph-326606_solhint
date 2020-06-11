@@ -46,4 +46,18 @@ describe('Linter - var-name-mixedcase', () => {
 
     assert.equal(report.errorCount, 0)
   })
+
+  it('option to forbid leading underscore', () => {
+    const code = funcWith('uint _b = 1;')
+
+    let report = linter.processStr(code, {
+      rules: { 'var-name-mixedcase': ['error'] }
+    })
+    assert.equal(report.errorCount, 0)
+
+    report = linter.processStr(code, {
+      rules: { 'var-name-mixedcase': ['error', { forbidLeadingUnderscore: true } ] }
+    })
+    assert.equal(report.errorCount, 1)
+  })
 })
