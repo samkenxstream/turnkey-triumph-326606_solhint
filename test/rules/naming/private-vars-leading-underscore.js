@@ -114,4 +114,3 @@ describe('Linter - private-vars-leading-underscore, strict mode', () => {
     assert.equal(report.errorCount, 0)
   })
 })
-
