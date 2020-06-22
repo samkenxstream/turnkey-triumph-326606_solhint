@@ -21,6 +21,13 @@ describe('Linter - private-vars-leading-underscore', () => {
     libraryWith('function _foo() public {}'),
     libraryWith('function _foo() internal {}')
   ]
+  const SHOULD_WARN_STRICT_CASES = [
+    contractWith('function foo() { uint _bar; }'),
+    contractWith('function foo(uint _bar) {}'),
+    contractWith('function foo() returns (uint256 _bar) {}'),
+    libraryWith('function foo() returns (uint256 _bar) {}'),
+    libraryWith('function foo(uint _bar) {}'),
+  ]
   const SHOULD_NOT_WARN_CASES = [
     // don't warn when private/internal names start with _
     contractWith('uint _foo;'),
@@ -44,19 +51,13 @@ describe('Linter - private-vars-leading-underscore', () => {
 
     // other names (variables, parameters, returns) shouldn't be affected by this rule
     contractWith('function foo(uint bar) {}'),
-    contractWith('function foo(uint _bar) {}'),
     contractWith('function foo() { uint bar; }'),
-    contractWith('function foo() { uint _bar; }'),
     contractWith('function foo() returns (uint256) {}'),
     contractWith('function foo() returns (uint256 bar) {}'),
-    contractWith('function foo() returns (uint256 _bar) {}'),
     libraryWith('function foo(uint bar) {}'),
-    libraryWith('function foo(uint _bar) {}'),
     libraryWith('function foo() { uint bar; }'),
-    libraryWith('function foo() { uint _bar; }'),
     libraryWith('function foo() returns (uint256) {}'),
     libraryWith('function foo() returns (uint256 bar) {}'),
-    libraryWith('function foo() returns (uint256 _bar) {}')
   ]
 
   SHOULD_WARN_CASES.forEach((code, index) => {
@@ -69,7 +70,7 @@ describe('Linter - private-vars-leading-underscore', () => {
     })
   })
 
-  SHOULD_NOT_WARN_CASES.forEach((code, index) => {
+  SHOULD_WARN_STRICT_CASES.concat(SHOULD_NOT_WARN_CASES).forEach((code, index) => {
     it(`should not emit a warning (${index})`, () => {
       const report = linter.processStr(code, {
         rules: { 'private-vars-leading-underscore': 'error' }
@@ -78,39 +79,25 @@ describe('Linter - private-vars-leading-underscore', () => {
       assert.equal(report.errorCount, 0)
     })
   })
-})
 
-describe('Linter - private-vars-leading-underscore, strict mode', () => {
-  it('should pass by default', () => {
-    const code = funcWith('uint _b = 1;')
+  SHOULD_NOT_WARN_CASES.forEach((code, index) => {
+    it(`should not emit a warning (${index})`, () => {
+      const report = linter.processStr(code, {
+        rules: { 'private-vars-leading-underscore': [ 'error', { strict: true } ] }
+      })
 
-    const report = linter.processStr(code, {
-      rules: {}
+      assert.equal(report.errorCount, 0)
     })
-    assert.equal(report.errorCount, 0)
   })
 
-  it('should raise error if configured', () => {
-    const code = funcWith('uint _b = 1;')
-    const report = linter.processStr(code, {
-      rules: { 'private-vars-leading-underscore': ['error', { strict: true }] }
-    })
-    assert.equal(report.errorCount, 1)
-  })
+  SHOULD_WARN_STRICT_CASES.forEach((code, index) => {
+    it(`should not emit a warning (${index})`, () => {
+      const report = linter.processStr(code, {
+        rules: { 'private-vars-leading-underscore': [ 'error', { strict: true } ] }
+      })
 
-  it('should not raise error for non state variable ', () => {
-    const code = contractWith('uint _b = 1;')
-    const report = linter.processStr(code, {
-      rules: { 'private-vars-leading-underscore': ['error', { strict: true }] }
+      assert.equal(report.errorCount, 1)
     })
-    assert.equal(report.errorCount, 0)
-  })
-
-  it('should not raise error for non state mapping variable', () => {
-    const code = contractWith('mapping (address => uint256) internal _balances;')
-    const report = linter.processStr(code, {
-      rules: { 'private-vars-leading-underscore': ['error', { strict: true }] }
-    })
-    assert.equal(report.errorCount, 0)
   })
 })
+
