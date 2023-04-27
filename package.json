@@ -51,7 +51,7 @@
     "semver": "^6.3.0"
   },
   "devDependencies": {
-    "@stryker-mutator/core": "^2.3.0",
+    "@stryker-mutator/core": "^6.4.2",
     "@stryker-mutator/javascript-mutator": "^2.3.0",
     "@stryker-mutator/mocha-runner": "^2.3.0",
     "assert": "1.4.1",
